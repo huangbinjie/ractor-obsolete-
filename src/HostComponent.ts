@@ -3,9 +3,7 @@ import { CreatedElement } from "./component"
 import { CompositeComponent } from "./CompositeComponent"
 
 export class HostComponent {
-	constructor(private nodeName: string, private props: createProperties, private children: (CreatedElement & object)[]) {
-		// this.props = Object.keys(props).map
-	}
+	constructor(private nodeName: string, private props: createProperties, private children: (CreatedElement & object)[]) { }
 	public mount(): VNode {
 		const children = this.children.map(child => {
 			if (child instanceof HostComponent || child instanceof CompositeComponent) return child.mount()

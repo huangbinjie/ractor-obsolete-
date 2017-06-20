@@ -7,15 +7,6 @@ import { HostComponent } from "./HostComponent"
 
 export function createElement(nodeName: string | (new () => Component<any, any>), props = {} as createProperties, ...children: CreatedElement[]) {
 	if (typeof nodeName === "string") {
-		// children.map(child => {
-		// 	if (child instanceof CompositeComponent || child instanceof HostComponent) {
-		// 		return child
-		// 	}
-		// 	if (child instanceof Function) {
-		// 		return new HostComponent("span", {}, [child()])
-		// 	}
-		// 	return new HostComponent("span", {}, [child])
-		// })
 		return new HostComponent(nodeName, props, children)
 	}
 	return new CompositeComponent(nodeName, props, children)

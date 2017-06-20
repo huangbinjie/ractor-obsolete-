@@ -1,5 +1,3 @@
-import { AbstractActor } from "js-actor"
-import { VNode, createProperties } from "virtual-dom"
 import { CompositeComponent } from "./CompositeComponent"
 import { HostComponent } from "./HostComponent"
 
