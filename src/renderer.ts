@@ -7,27 +7,23 @@ import { CompositeComponent } from "./CompositeComponent"
 
 export const render = (container: Element, root: CompositeComponent) => {
 	const app = new ActorSystem("reactor")
-	const rendererActor = app.actorOf(new Renderer(container), "renderer")
-	app.actorOf(root)
 	const rootVnode = root.mount()
-	rendererActor.tell(new Render(rootVnode))
+	const rootNode = create(rootVnode)
+	container.appendChild(rootNode)
+	const rendererActor = app.actorOf(new Renderer(rootNode, rootVnode), "renderer")
+	app.actorOf(root)
 }
 
 export class Renderer extends AbstractActor {
-	private vtree: VTree
 	public createReceive() {
 		return this.receiveBuilder()
 			.match(Render, render => {
-				if (this.vtree) {
-					const patches = diff(this.vtree, render.newVnode)
-					this.container = patch(this.container, patches)
-				} else {
-					this.container = create(render.newVnode)
-				}
+				const patches = diff(this.rootNode, render.newVnode)
+				this.container = patch(this.container, patches)
 			})
 			.build()
 	}
-	constructor(private container: Element) {
+	constructor(private container: Element, private rootNode: VNode) {
 		super()
 	}
 }

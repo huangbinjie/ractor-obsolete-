@@ -6,7 +6,7 @@ class App extends Ractor.Component<null, { num: number }> {
 		return (
 			<div>
 				<IncrementButton click={this.add} />
-				{this.state.num}
+				<span>{this.state.num}</span>
 				<DecrementButton click={this.minus} />
 			</div>
 		)

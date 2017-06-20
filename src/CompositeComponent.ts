@@ -22,6 +22,9 @@ export class CompositeComponent extends AbstractActor {
 			this.context.system.dispatch("renderer", new Render(vnode))
 		}
 		let element = this.instanceComponent.render()
+		if (element instanceof CompositeComponent) {
+			this.context.actorOf(element)
+		}
 		return element.mount()
 	}
 }
