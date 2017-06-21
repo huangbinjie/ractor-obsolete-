@@ -1,5 +1,6 @@
-export { render } from "./renderer"
-export { Component } from "./component"
+export { render } from "./Renderer"
+export { Component } from "./Component"
+export { ReceiveComponent } from "./ReceiveComponent"
 export { createElement } from "./createElement"
 
 // declare global {

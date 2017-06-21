@@ -1,11 +1,16 @@
 import { CompositeComponent } from "./CompositeComponent"
-import { HostComponent } from "./HostComponent"
+import { DomComponent } from "./DomComponent"
+import { CreatedElement } from "./createElement"
 
 export abstract class Component<P, S> {
 	public state: S
 	public props: P
-	abstract render(): CreatedElement
-	public setState(newState: Partial<S>) { }
-}
+	public abstract render(): CreatedElement
+	public setState: (newState: Partial<S>, callback?: () => void) => void
+	public dispatch: (receiveName: string, message: object) => void
 
-export type CreatedElement = CompositeComponent | HostComponent
+	// lifecycle
+	public willMount() { }
+	public didMount() { }
+	public didUpdate() {}
+}

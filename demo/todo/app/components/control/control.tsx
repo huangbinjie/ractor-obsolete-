@@ -1,12 +1,7 @@
 import * as Ractor from "../../../../../src"
-import { TTodo } from "../view"
+import { TodoMessage } from "../../messages/todo"
 
-type Props = {
-	display: string
-	todos: TTodo[]
-}
-
-export class Control extends Ractor.Component<Props, void> {
+export class Control extends Ractor.Component<TodoMessage, {}> {
 	public render() {
 		const { display, todos } = this.props
 		return (
@@ -29,8 +24,12 @@ export class Control extends Ractor.Component<Props, void> {
 	}
 
 	private clearCompleted = () => {
-		const items = this.props.todos.filter(item => item.status !== "completed")
-		Store.children.Todo.setState({ todos: items }, () => localStorage.setItem("meng-todo", JSON.stringify(this.props)))
+		const todos = this.props.todos.filter(item => item.status !== "completed")
+		this.dispatch("TODO", new TodoMessage({ todos }))
+		localStorage.setItem("ractor-todo", JSON.stringify(this.props))
 	}
-	private show = display => () => Store.children.Todo.setState({ display }, () => localStorage.setItem("meng-todo", JSON.stringify(this.props)))
+	private show = display => () => {
+		this.dispatch("TODO", new TodoMessage({ display }))
+		localStorage.setItem("ractor-todo", JSON.stringify(this.props))
+	}
 }

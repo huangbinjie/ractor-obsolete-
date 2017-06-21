@@ -1,4 +1,4 @@
-export type TTodo = {
+export type Todo = {
 	status: string
 	value: string
 }

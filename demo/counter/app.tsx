@@ -2,6 +2,9 @@ import * as Ractor from "../../src"
 
 class App extends Ractor.Component<null, { num: number }> {
 	state = { num: 0 }
+	willMount() { console.log(1) }
+	didMount() { console.log(2) }
+	didUpdate() { console.log(3) }
 	render() {
 		return (
 			<div>

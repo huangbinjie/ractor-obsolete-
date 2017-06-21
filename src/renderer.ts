@@ -1,8 +1,9 @@
 import { ActorSystem } from "js-actor"
 import { AbstractActor } from "js-actor"
-import { create, diff, patch, VNode, VTree } from "virtual-dom"
-import * as Ractor from "./"
-
+import { create, diff, patch, VNode } from "virtual-dom"
+import { Render } from "./messages/render"
+import { ComponentDidMount } from "./messages/componentDidMount"
+import { ComponentDidUpdate } from "./messages/componentDidUpdate"
 import { CompositeComponent } from "./CompositeComponent"
 
 export const render = (container: Element, root: CompositeComponent) => {
@@ -11,7 +12,9 @@ export const render = (container: Element, root: CompositeComponent) => {
 	const rootNode = create(rootVnode)
 	container.appendChild(rootNode)
 	const rendererActor = app.actorOf(new Renderer(rootNode, rootVnode), "renderer")
-	app.actorOf(root)
+	const rootActor = app.actorOf(root)
+	root.renderer = rendererActor
+	rootActor.tell(new ComponentDidMount)
 }
 
 export class Renderer extends AbstractActor {
@@ -19,15 +22,12 @@ export class Renderer extends AbstractActor {
 		return this.receiveBuilder()
 			.match(Render, render => {
 				const patches = diff(this.rootNode, render.newVnode)
-				this.container = patch(this.container, patches)
+				this.container = patch(this.container, patches);
+				this.getSender()!.tell(new ComponentDidUpdate)
 			})
 			.build()
 	}
 	constructor(private container: Element, private rootNode: VNode) {
 		super()
 	}
-}
-
-export class Render {
-	constructor(public newVnode: VNode) { }
 }
