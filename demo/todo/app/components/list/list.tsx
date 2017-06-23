@@ -6,9 +6,9 @@ export class List extends Ractor.Component<{ todos: TodoMessage["todos"] }, {}> 
 		const items = this.props.todos.map((todo, index) => (
 			<li className={todo.status} key={index}>
 				<div className="view">
-					<input className="toggle" type="checkbox" onChange={this.toggle(index)} checked={todo.status === "completed" ? true : false} />
+					<input className="toggle" type="checkbox" onchange={this.toggle(index)} checked={todo.status === "completed" ? true : false} />
 					<label>{todo.value}</label>
-					<button className="destroy" onClick={this.destroy(index)}></button>
+					<button className="destroy" onclick={this.destroy(index)}></button>
 				</div>
 			</li>
 		))

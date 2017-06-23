@@ -5,12 +5,18 @@ import { List } from "../components/list/list"
 import { TodoMessage } from "../messages/todo"
 
 export class Todo extends Ractor.ReceiveComponent<{}, TodoMessage> {
+	public state = { todos: [], display: "all" }
 	public receiveName = "TODO"
 	public createReceive() {
-		return this.receiveBuilder().match(TodoMessage, todo => this.setState(todo))
+		return this.receiveBuilder().match(TodoMessage, todo => {
+			console.log(todo)
+			this.setState(todo)
+		})
 	}
-	public willMount() { }
-	public didMount() { }
+	public didMount() {
+		const todos = JSON.parse(localStorage.getItem("ractor-todo"))
+		this.setState(todos)
+	}
 	public render() {
 		return (
 			<section className="todoapp">
@@ -21,5 +27,3 @@ export class Todo extends Ractor.ReceiveComponent<{}, TodoMessage> {
 		)
 	}
 }
-
-

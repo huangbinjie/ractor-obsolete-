@@ -6,7 +6,7 @@ export class Header extends Ractor.Component<{ todos: TodoMessage["todos"] }, {}
 		return (
 			<header className="header">
 				<h1>todos</h1>
-				<input className="new-todo" onKeyDown={this.onkeydown} placeholder="What needs to be done?" autoFocus={true} />
+				<input className="new-todo" onkeydown={this.onkeydown} placeholder="What needs to be done?" autoFocus={true} />
 			</header>
 		)
 	}

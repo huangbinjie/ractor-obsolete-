@@ -9,16 +9,16 @@ export class Control extends Ractor.Component<TodoMessage, {}> {
 				<span className="todo-count"><strong>{todos.filter(item => item.status === "active").length}</strong> item left</span>
 				<ul className="filters">
 					<li>
-						<a className={display === "all" ? "selected" : ""} href="#/" onClick={this.show("all")}>All</a>
+						<a className={display === "all" ? "selected" : ""} href="#/" onclick={this.show("all")}>All</a>
 					</li>
 					<li>
-						<a className={display === "active" ? "selected" : ""} href="#/active" onClick={this.show("active")}>Active</a>
+						<a className={display === "active" ? "selected" : ""} href="#/active" onclick={this.show("active")}>Active</a>
 					</li>
 					<li>
-						<a className={display === "completed" ? "selected" : ""} href="#/completed" onClick={this.show("completed")}>Completed</a>
+						<a className={display === "completed" ? "selected" : ""} href="#/completed" onclick={this.show("completed")}>Completed</a>
 					</li>
 				</ul>
-				<button className="clear-completed" onClick={this.clearCompleted}>Clear completed</button>
+				<button className="clear-completed" onclick={this.clearCompleted}>Clear completed</button>
 			</footer>
 		)
 	}
@@ -26,7 +26,7 @@ export class Control extends Ractor.Component<TodoMessage, {}> {
 	private clearCompleted = () => {
 		const todos = this.props.todos.filter(item => item.status !== "completed")
 		this.dispatch("TODO", new TodoMessage({ todos }))
-		localStorage.setItem("ractor-todo", JSON.stringify(this.props))
+		localStorage.setItem("ractor-todo", JSON.stringify(todos))
 	}
 	private show = display => () => {
 		this.dispatch("TODO", new TodoMessage({ display }))
