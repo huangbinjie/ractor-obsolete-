@@ -7,27 +7,32 @@ import { ComponentDidUpdate } from "./messages/componentDidUpdate"
 import { CompositeComponent } from "./component/CompositeComponent"
 import { Element as VirtualElement } from "./element/Element"
 import { mount } from "./helper/mount"
+import { callChildrenMethod } from "./helper/callChildrenMethod"
 
 
 export const render = (container: Element, rootElement: VirtualElement) => {
 	const app = new ActorSystem("ractor")
-	const rootVNode = mount(rootElement, app.getRoot())
+	console.log(app)
+	const renderer = new Renderer
+	const rendererActor = app.actorOf(renderer, "@@renderer")
+	const rootVNode = mount(rootElement, app.getRoot(), rendererActor)
 	const rootNode = create(rootVNode)
-	const rendererActor = app.actorOf(new Renderer(rootNode, rootVNode), "@@renderer")
 	container.appendChild(rootNode)
+	renderer.container = rootNode
+	renderer.rootVNode = rootVNode
 }
 
 export class Renderer extends AbstractActor {
+	public container: Element
+	public rootVNode: VNode
 	public createReceive() {
 		return this.receiveBuilder()
 			.match(Render, render => {
-				const patches = diff(this.rootNode, render.newVnode)
+				console.log(render.newVnode)
+				const patches = diff(this.rootVNode, render.newVnode)
 				this.container = patch(this.container, patches);
 				this.getSender()!.tell(new ComponentDidUpdate)
 			})
 			.build()
-	}
-	constructor(private container: Element, private rootNode: VNode) {
-		super()
 	}
 }
