@@ -13,13 +13,18 @@ export class DomComponent extends AbstractActor {
 	public render(nextElement: Element): VNode {
 		const { type, props, children } = nextElement
 		if (this.element.type === type) {
-			// if (children.length === 1 && typeof children[0] !== "function") return h("span", props, children as [string])
 			const flattenedChildren = children.reduce<(VNode | Element)[]>((acc, child) => [...acc, ...Array.isArray(child) ? child : [child]], [])
+			if (this.context.children.size !== flattenedChildren.length) {
+				this.unmount()
+				return mount(nextElement, this.context.parent, this.renderer)
+			}
+
 			const childs = [...this.context.children.values()]
 				.map(child => child.getActor())
 				.map((child: CompositeComponent | DomComponent, i) => {
-					// if (typeof flattenedChildren[i] === "string") return h("span", {}, flattenedChildren[i] as string)
-					return child.render(flattenedChildren[i] as Element)
+					const el = flattenedChildren[i] as Element
+					if (child instanceof CompositeComponent) child.instantiatedComponent.receiveProps(el.props)
+					return child.render(el)
 				})
 			return h(type as string, props, childs)
 		} else {

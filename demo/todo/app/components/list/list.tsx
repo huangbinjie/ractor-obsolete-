@@ -2,6 +2,9 @@ import * as Ractor from "../../../../../src"
 import { TodoMessage } from "../../messages/todo"
 
 export class List extends Ractor.Component<{ todos: TodoMessage["todos"] }, {}> {
+	public receiveProps(nextProps) {
+		console.log(nextProps)
+	}
 	public render() {
 		const items = this.props.todos.map((todo, index) => (
 			<li className={todo.status} key={index}>

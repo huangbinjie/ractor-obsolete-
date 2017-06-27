@@ -16,11 +16,8 @@ export function mount(elements: Element, parent: ActorRef, renderer: ActorRef): 
 
 export function mountComposite(element: Element, parent: ActorRef, renderer: ActorRef): VNode {
 	const component = new CompositeComponent(element, renderer)
-	const actor = parent.getContext().actorOf(component)
-	const renderedElement = component.instantiatedComponent.render()
-	component.renderedElement = renderedElement
-	component.instantiatedComponent.didMount()
-	return mount(renderedElement, actor, renderer)
+	const actor = parent.getContext().actorOf(component, component.name)
+	return mount(component.renderedElement, actor, renderer)
 }
 
 export function mountHost(element: Element, parent: ActorRef, renderer: ActorRef): VNode {

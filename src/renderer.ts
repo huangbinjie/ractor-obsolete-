@@ -12,7 +12,6 @@ import { callChildrenMethod } from "./helper/callChildrenMethod"
 
 export const render = (container: Element, rootElement: VirtualElement) => {
 	const app = new ActorSystem("ractor")
-	console.log(app)
 	const renderer = new Renderer
 	const rendererActor = app.actorOf(renderer, "@@renderer")
 	const rootVNode = mount(rootElement, app.getRoot(), rendererActor)
@@ -20,6 +19,7 @@ export const render = (container: Element, rootElement: VirtualElement) => {
 	container.appendChild(rootNode)
 	renderer.container = rootNode
 	renderer.rootVNode = rootVNode
+	callChildrenMethod(app.getRoot().getContext().children.values(), "didMount")
 }
 
 export class Renderer extends AbstractActor {

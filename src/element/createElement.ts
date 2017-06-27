@@ -7,6 +7,7 @@ import { Element } from "./Element"
 export function createElement(nodeName: string | (new () => Component<any, any>), props = {} as createProperties, ...children: (Element | string)[]) {
 	const childs = children.map(child => {
 		if (child instanceof Element) return child
+		if (Array.isArray(child)) return child
 		return h("span", {}, String(child))
 	})
 	return new Element(nodeName, props, childs)

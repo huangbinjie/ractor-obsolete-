@@ -8,14 +8,15 @@ export class Todo extends Ractor.ReceiveComponent<{}, TodoMessage> {
 	public state = { todos: [], display: "all" }
 	public receiveName = "TODO"
 	public createReceive() {
-		return this.receiveBuilder().match(TodoMessage, todo => {
-			console.log(todo)
-			this.setState(todo)
-		})
+		return this.receiveBuilder()
+			.match(TodoMessage, todo => {
+				this.setState({ todos: todo.todos })
+			})
 	}
 	public didMount() {
-		const todos = JSON.parse(localStorage.getItem("ractor-todo"))
-		this.setState(todos)
+		const cache = JSON.parse(localStorage.getItem("ractor-todo"))
+		if (cache.length > 0)
+			this.setState({ todos: cache.todos })
 	}
 	public render() {
 		return (

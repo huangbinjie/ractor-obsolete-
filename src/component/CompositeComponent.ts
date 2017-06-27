@@ -22,9 +22,11 @@ export class CompositeComponent extends AbstractActor {
 		this.instantiateComponent(element)
 	}
 	public createReceive() {
-		return this.receiveBuilder()
+		const receiveBuilder = this.instantiatedComponent instanceof ReceiveComponent ?
+			this.instantiatedComponent.createReceive() : this.receiveBuilder()
+		return receiveBuilder
 			.match(ComponentDidUpdate, () => {
-				this.instantiatedComponent!.didUpdate()
+				this.instantiatedComponent.didUpdate()
 				callChildrenMethod(this.context.children.values(), "didUpdate")
 			})
 			.build()
@@ -37,19 +39,19 @@ export class CompositeComponent extends AbstractActor {
 		// 初始化实例
 		this.instantiatedComponent = new componentClass
 
+		this.instantiatedComponent.props = props
+
+		this.renderedElement = this.instantiatedComponent.render()
+
 		if (this.instantiatedComponent instanceof ReceiveComponent) {
 			this.name = this.instantiatedComponent.receiveName
 		}
-
-		this.instantiatedComponent.props = props
 
 		this.instantiatedComponent.setState = (nextState: object, callback = () => { }) => {
 			// setstate 部分需要根据此函数判断是否刷新
 			if (!this.instantiatedComponent.shouldUpdate(this.instantiatedComponent.props, nextState)) return
 			Object.assign(this.instantiatedComponent.state, nextState)
-			const nextElement = this.instantiatedComponent.render()
-			// 组件的子节点必然是 其他组件或者dom节点，并且只有一个,不用考虑string情况
-			const vnode = this.render(nextElement)
+			const vnode = this.render(this.element)
 			this.renderer.tell(new Render(vnode), this.getSelf())
 			callback()
 		}
@@ -62,17 +64,31 @@ export class CompositeComponent extends AbstractActor {
 	public unmount() {
 		this.context.stop()
 	}
-
+	/** 
+	 *  setState: render(<Todo />)
+	 * 
+	 *  如果子节点类型没变，比如 (<div>Header</div>).render(<Header />)，那么刷新dom
+	 * 
+	 *  如果子节点类型变了，比如<div><Header /></div>变成<div><List /></div>，则复用当前节点(actor)，
+	 *  卸载所有子节点，然后重新mount新节点。
+	 *  
+	 *  如果3个子元素变成2个，那么会render(undefined)，需要unmount这个actor。
+	 */
 	public render(nextElement: Element): VNode {
-		if (this.renderedElement.type === nextElement.type) {
-			const child = this.context.children.values().next().value.getActor() as CompositeComponent | DomComponent
-			return child.render(nextElement)
+		if (!nextElement) this.unmount()
+
+		const child = this.context.children.values().next().value.getActor() as CompositeComponent | DomComponent
+		this.instantiatedComponent.props = nextElement.props
+		const nextRenderedElement = this.instantiatedComponent.render()
+
+		if (this.element.type === nextElement.type) {
+			const nextVNode = child.render(nextRenderedElement)
+			this.renderedElement = nextRenderedElement
+			return nextVNode
 		} else {
-			const child = this.context.children.values().next().value.getActor() as CompositeComponent | DomComponent
+			this.instantiateComponent(nextRenderedElement)
 			child.unmount()
-			this.renderedElement = nextElement
-			this.instantiateComponent(nextElement)
-			return mount(nextElement, this.getSelf(), this.renderer)
+			return mount(nextRenderedElement, this.getSelf(), this.renderer)
 		}
 	}
 }
