@@ -13,10 +13,13 @@ export class DomComponent extends AbstractActor {
 	public render(nextElement: Element): VNode {
 		const { type, props, children } = nextElement
 		if (this.element.type === type) {
-			const flattenedChildren = children.reduce<(VNode | Element)[]>((acc, child) => [...acc, ...Array.isArray(child) ? child : [child]], [])
+			const flattenedChildren = children.reduce<(string | Element)[]>((acc, child) => [...acc, ...Array.isArray(child) ? child : [child]], [])
 			if (this.context.children.size !== flattenedChildren.length) {
-				this.unmount()
-				return mount(nextElement, this.context.parent, this.renderer)
+				for (let child of this.context.children.values()) {
+					(child.getActor() as DomComponent).unmount()
+				}
+				mount(children, this.getSelf(), this.renderer)
+				return mount(nextElement, this.getSelf(), this.renderer)
 			}
 
 			const childs = [...this.context.children.values()]

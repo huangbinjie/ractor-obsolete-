@@ -9,7 +9,7 @@ import { ComponentDidMount } from "../messages/componentDidMount"
 import { ComponentDidUpdate } from "../messages/componentDidUpdate"
 import { Render } from "../messages/render"
 
-import { mount, mountHost } from "../helper/mount"
+import { mount } from "../helper/mount"
 import { callChildrenMethod } from "../helper/callChildrenMethod"
 
 export class CompositeComponent extends AbstractActor {
@@ -91,4 +91,15 @@ export class CompositeComponent extends AbstractActor {
 			return mount(nextRenderedElement, this.getSelf(), this.renderer)
 		}
 	}
+
+	// public mount() {
+	// 	const { type, props, children } = this.renderedElement
+	// 	if (typeof type === "string") {
+	// 		const childs = children.map(child => {
+
+	// 		})
+	// 	} else {
+
+	// 	}
+	// }
 }

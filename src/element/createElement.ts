@@ -8,7 +8,7 @@ export function createElement(nodeName: string | (new () => Component<any, any>)
 	const childs = children.map(child => {
 		if (child instanceof Element) return child
 		if (Array.isArray(child)) return child
-		return h("span", {}, String(child))
+		return String(child)
 	})
 	return new Element(nodeName, props, childs)
 }

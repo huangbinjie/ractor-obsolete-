@@ -5,6 +5,6 @@ export class Element {
 	constructor(
 		public type: string | (new () => Component<any, any>),
 		public props: createProperties,
-		public children: (VNode | Element | Element[])[]
+		public children: (string | Element | Element[])[]
 	) { }
 }

@@ -5,7 +5,7 @@ import { CompositeComponent } from "./CompositeComponent"
 import { mount } from "../helper/mount"
 
 export class VNodeComponent extends AbstractActor {
-	constructor(private vnode: VNode) { super() }
+	constructor(private text: string) { super() }
 	public createReceive() {
 		return this.receiveBuilder().build()
 	}
