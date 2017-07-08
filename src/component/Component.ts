@@ -11,6 +11,7 @@ export abstract class Component<P, S> {
 	public willMount() { }
 	public didMount() { }
 	public didUpdate() { }
+	public willUpdate(nextProps: P) { }
 	public receiveProps(nextProps: P) { }
 	public shouldUpdate(nextProps: P, nextState: S) { return true }
 }

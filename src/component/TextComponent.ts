@@ -4,14 +4,13 @@ import { Element } from "../element/Element"
 import { CompositeComponent } from "./CompositeComponent"
 import { mount } from "../helper/mount"
 
-export class VNodeComponent extends AbstractActor {
-	constructor(private text: string) { super() }
-	public createReceive() {
-		return this.receiveBuilder().build()
-	}
+export class TextComponent extends AbstractActor {
+	constructor(public dom: Text, public renderedElement: string) { super() }
 
-	public render(vnode: VNode): VNode {
-		return vnode
+	public render(nextText: string) {
+		if (this.dom.textContent !== nextText) {
+			this.dom.textContent = nextText
+		}
 	}
 
 	public unmount() {

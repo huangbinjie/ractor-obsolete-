@@ -14,10 +14,10 @@ import { callChildrenMethod } from "../helper/callChildrenMethod"
 
 export class CompositeComponent extends AbstractActor {
 	// 节点名称，如果是空则js-actor会随机生成
-	public name?: string
 	public renderedElement: Element
+	public dom: HTMLElement
 	public instantiatedComponent: Component<any, any>
-	constructor(private element: Element, private renderer: ActorRef) {
+	constructor(private element: Element) {
 		super()
 		this.instantiateComponent(element)
 	}
@@ -32,6 +32,25 @@ export class CompositeComponent extends AbstractActor {
 			.build()
 	}
 
+	// public getDom() {
+	// 	if (typeof this.renderedElement.type === "function") {
+	// 		const childActor = this.context.children.values().next().value.getActor() as CompositeComponent | DomComponent
+	// 		if (childActor instanceof CompositeComponent) {
+	// 			return childActor.getDom()
+	// 		} else {
+	// 			return childActor.dom
+	// 		}
+	// 	}
+	// 	return this.renderedElement
+	// }
+
+	public replaceChild(newActor: AbstractActor, oldActor: ActorRef) {
+		const newRef = new ActorRef(newActor, this.context.system, oldActor.name, this.context.self, oldActor.getContext().path)
+		this.context.children.set(oldActor.name, newRef)
+		oldActor.getContext().stop()
+		newActor.receive()
+	}
+
 	public instantiateComponent(element: Element) {
 		const componentClass = element.type as new () => Component<any, any>
 		const props = element.props
@@ -43,22 +62,16 @@ export class CompositeComponent extends AbstractActor {
 
 		this.renderedElement = this.instantiatedComponent.render()
 
-		if (this.instantiatedComponent instanceof ReceiveComponent) {
-			this.name = this.instantiatedComponent.receiveName
-		}
-
 		this.instantiatedComponent.setState = (nextState: object, callback = () => { }) => {
 			// setstate 部分需要根据此函数判断是否刷新
 			if (!this.instantiatedComponent.shouldUpdate(this.instantiatedComponent.props, nextState)) return
 			Object.assign(this.instantiatedComponent.state, nextState)
-			const vnode = this.render(this.element)
-			this.renderer.tell(new Render(vnode), this.getSelf())
+			this.instantiatedComponent.willUpdate(this.instantiatedComponent.props)
+			const vnode = this.render(this.instantiatedComponent.render())
 			callback()
 		}
 
 		this.instantiatedComponent.dispatch = (name: string, message: object) => this.context.system.dispatch(name, message)
-
-		this.instantiatedComponent.willMount()
 	}
 
 	public unmount() {
@@ -74,32 +87,19 @@ export class CompositeComponent extends AbstractActor {
 	 *  
 	 *  如果3个子元素变成2个，那么会render(undefined)，需要unmount这个actor。
 	 */
-	public render(nextElement: Element): VNode {
+	public render(nextElement: Element) {
 		if (!nextElement) this.unmount()
 
 		const child = this.context.children.values().next().value.getActor() as CompositeComponent | DomComponent
 		this.instantiatedComponent.props = nextElement.props
-		const nextRenderedElement = this.instantiatedComponent.render()
-
-		if (this.element.type === nextElement.type) {
-			const nextVNode = child.render(nextRenderedElement)
-			this.renderedElement = nextRenderedElement
-			return nextVNode
+		if (this.renderedElement.type === nextElement.type) {
+			child.render(child.renderedElement)
+			this.renderedElement = nextElement
 		} else {
-			this.instantiateComponent(nextRenderedElement)
+			// 如果类型不同卸载重新初始化组件，卸载虚拟节点，重新生成子节点
+			this.instantiateComponent(nextElement)
 			child.unmount()
-			return mount(nextRenderedElement, this.getSelf(), this.renderer)
+			mount(nextElement, this.getSelf())
 		}
 	}
-
-	// public mount() {
-	// 	const { type, props, children } = this.renderedElement
-	// 	if (typeof type === "string") {
-	// 		const childs = children.map(child => {
-
-	// 		})
-	// 	} else {
-
-	// 	}
-	// }
 }
